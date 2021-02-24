@@ -1,0 +1,100 @@
+<!DOCTYPE html>
+<html>
+    <head>
+        <style>
+            body {
+                background-color: rgb(236, 183, 234);
+            }
+        </style>
+        <title>SOUND ANALYSIS</title><br>
+        <link rel="stylesheet" type="text/css" href="static/css/style1.css">
+        <link rel = "stylesheet" href = "https://maxcdn.bootstrapcdn.com/bootstrap/3.3.6/css/bootstrap.min.css"/> 
+        <script> 
+
+            let audioIN = { audio: true }; 
+            navigator.mediaDevices.getUserMedia(audioIN)  
+              .then(function (mediaStreamObj) {  
+                let audio = document.querySelector('audio'); 
+                if ("srcObject" in audio) { 
+                  audio.srcObject = mediaStreamObj; 
+                } 
+                else {   
+                  audio.src = window.URL 
+                    .createObjectURL(mediaStreamObj); 
+                } 
+          
+                audio.onloadedmetadata = function (ev) { 
+                  audio.play(); 
+                };
+                let start = document.getElementById('btnStart'); 
+
+        let stop = document.getElementById('btnStop'); 
+        let playAudio = document.getElementById('adioPlay'); 
+ 
+        let mediaRecorder = new MediaRecorder(mediaStreamObj);  
+        start.addEventListener('click', function (ev) { 
+          mediaRecorder.start(); 
+        }) 
+         stop.addEventListener('click', function (ev) { 
+          mediaRecorder.stop(); 
+          // console.log(mediaRecorder.state); 
+        });  
+        mediaRecorder.ondataavailable = function (ev) { 
+          dataArray.push(ev.data); 
+        }
+
+        let dataArray = [];  
+        mediaRecorder.onstop = function (ev) {
+        
+            let audioData = new Blob(dataArray,  
+                    { 'type': 'audio/mp3;' }); 
+             
+          dataArray = []; 
+   
+          let audioSrc = window.URL 
+              .createObjectURL(audioData); 
+ 
+          playAudio.src = audioSrc; 
+        } 
+      })  
+       .catch(function (err) { 
+        console.log(err.name, err.message); 
+      });      
+    </script> 
+
+            
+
+    </head>
+    <body>
+        <div class="title">
+            <header>
+                <h1>SOUND ANALYSIS</h1><br><br>
+                <p1><h3><i><u>Please, choose an audio file(.wav)</u></i></h3></p1><br>
+                
+                <form action="{{ url_for('detect')}}" enctype="multipart/form-data"method="post">
+                <input type="file" name="file"><br><br>
+                <button type="submit"  class="btn btn-primary btn-block btn-large">detect</button>
+                </form><br><br>
+                <h3>{{detect}}</h3>
+                <br><br>
+                <p><h3><i><u>Please, record an audio for 10sec....</u></h3></i></p><br>
+                 <form action="{{ url_for('record')}}"method="post">
+                    <button type="submit" class="btn btn-primary btn-block btn-large">record</button>
+                </form>
+                <br>
+                <form action="{{ url_for('predict')}}"method="post">
+                <button type="submit" class="btn btn-primary btn-block btn-large">Predict</button>
+                </form>
+                <br>
+                <h3>
+                {{predict}}
+                </h3> 
+            </header>
+        </div>
+        
+    </body>
+</html>
+   
+
+
+   
